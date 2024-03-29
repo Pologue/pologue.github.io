@@ -48,6 +48,8 @@
   <noscript>
     <link rel="stylesheet" href="/css/noscript.css">
   </noscript>
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
 <style>mjx-container[jax="SVG"] {
   direction: ltr;
 }
@@ -160,9 +162,7 @@ mjx-container[display="true"] {
 mjx-container[display="true"] + br {
   display: none;
 }
-</style>
-<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
-</head>
+</style></head>
 
 <body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
   <div class="headband"></div>
@@ -305,9 +305,15 @@ mjx-container[display="true"] + br {
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2024-03-29 23:50:34 / 修改时间：23:51:24" itemprop="dateCreated datePublished" datetime="2024-03-29T23:50:34+08:00">2024-03-29</time>
+      <time title="创建时间：2024-03-29 23:50:34" itemprop="dateCreated datePublished" datetime="2024-03-29T23:50:34+08:00">2024-03-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2024-03-30 00:00:47" itemprop="dateModified" datetime="2024-03-30T00:00:47+08:00">2024-03-30</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -332,11 +338,14 @@ mjx-container[display="true"] + br {
           <p>因为想把电脑上的一些图片转成 ASCII 图片， 在复制 Windows 的文件地址到
 WSL 上时， 没有找到像 cygpath 这样的工具， 所以我在 <code>.zshrc</code>
 里加了下面的内容：</p>
-<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">\# cygpath-like func</span><br><span class="line">w2nix()</span><br><span class="line">{</span><br><span class="line">  echo "$1" | sed -e 's/\\/\//g' -e 's/E:/\/mnt\/e/g'</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight bash"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># cygpath-like func</span></span><br><span class="line"><span class="function"><span class="title">w2nix</span></span>()</span><br><span class="line">{</span><br><span class="line">  <span class="built_in">echo</span> <span class="string">"<span class="variable">$1</span>"</span> | sed -e <span class="string">'s/\\/\//g'</span> -e <span class="string">'s/E:/\/mnt\/e/g'</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 <p>在我想把这件事写进 blog 时， 我又发现我的 <code>hexo</code>
 命令找不到了。</p>
 <p>一番排查后发现是 nvm 修改系统变量的时候连着 node_global
-也给改掉了。蒸 <span class="github-emoji"><span>🦐</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f990.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> 头</p>
+也给改掉了。蒸 🦐 头</p>
+<h4 id="参考链接">参考链接</h4>
+<p><a target="_blank" rel="noopener" href="https://segmentfault.com/a/1190000022722531">Linux技巧：sed命令替换、删除、同时匹配多个模式的方法</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/WUDIxi/article/details/123562681">zsh自定义命令并传递参数</a></p>
 
       
     </div>
