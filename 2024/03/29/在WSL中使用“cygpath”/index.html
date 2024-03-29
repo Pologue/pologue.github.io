@@ -19,23 +19,31 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"pologue.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.19.2","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12},"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
 
-    <meta property="og:type" content="website">
-<meta property="og:title" content="Pologue">
-<meta property="og:url" content="http://pologue.github.io/tags/WSL/index.html">
+    <meta name="description" content="因为想把电脑上的一些图片转成 ASCII 图片， 在复制 Windows 的文件地址到 WSL 上时， 没有找到像 cygpath 这样的工具， 所以我在 .zshrc 里加了下面的内容： 12345\# cygpath-like funcw2nix(){  echo &quot;$1&quot; | sed -e &#39;s&#x2F;\\&#x2F;\&#x2F;&#x2F;g&#39; -e &#39;s&#x2F;E:&#x2F;\&#x2F;mnt\&#x2F;e&#x2F;g&#39;} 在我想把这件事写进 blog 时，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在WSL中使用“cygpath”">
+<meta property="og:url" content="http://pologue.github.io/2024/03/29/%E5%9C%A8WSL%E4%B8%AD%E4%BD%BF%E7%94%A8%E2%80%9Ccygpath%E2%80%9D/index.html">
 <meta property="og:site_name" content="Pologue">
+<meta property="og:description" content="因为想把电脑上的一些图片转成 ASCII 图片， 在复制 Windows 的文件地址到 WSL 上时， 没有找到像 cygpath 这样的工具， 所以我在 .zshrc 里加了下面的内容： 12345\# cygpath-like funcw2nix(){  echo &quot;$1&quot; | sed -e &#39;s&#x2F;\\&#x2F;\&#x2F;&#x2F;g&#39; -e &#39;s&#x2F;E:&#x2F;\&#x2F;mnt\&#x2F;e&#x2F;g&#39;} 在我想把这件事写进 blog 时，">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://github.githubassets.com/images/icons/emoji/unicode/1f990.png?v8">
+<meta property="article:published_time" content="2024-03-29T15:50:34.000Z">
+<meta property="article:modified_time" content="2024-03-29T15:51:24.372Z">
 <meta property="article:author" content="Pologue">
+<meta property="article:tag" content="Linux">
+<meta property="article:tag" content="WSL">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://github.githubassets.com/images/icons/emoji/unicode/1f990.png?v8">
 
 
-<link rel="canonical" href="http://pologue.github.io/tags/WSL/">
+<link rel="canonical" href="http://pologue.github.io/2024/03/29/%E5%9C%A8WSL%E4%B8%AD%E4%BD%BF%E7%94%A8%E2%80%9Ccygpath%E2%80%9D/">
 
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"zh-CN","comments":"","permalink":"","path":"tags/WSL/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://pologue.github.io/2024/03/29/%E5%9C%A8WSL%E4%B8%AD%E4%BD%BF%E7%94%A8%E2%80%9Ccygpath%E2%80%9D/","path":"2024/03/29/在WSL中使用“cygpath”/","title":"在WSL中使用“cygpath”"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>标签: WSL | Pologue</title>
+<title>在WSL中使用“cygpath” | Pologue</title>
   
 
 
@@ -48,7 +56,119 @@
   <noscript>
     <link rel="stylesheet" href="/css/noscript.css">
   </noscript>
+<style>mjx-container[jax="SVG"] {
+  direction: ltr;
+}
 
+mjx-container[jax="SVG"] > svg {
+  overflow: visible;
+}
+
+mjx-container[jax="SVG"][display="true"] {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+mjx-container[jax="SVG"][justify="left"] {
+  text-align: left;
+}
+
+mjx-container[jax="SVG"][justify="right"] {
+  text-align: right;
+}
+
+g[data-mml-node="merror"] > g {
+  fill: red;
+  stroke: red;
+}
+
+g[data-mml-node="merror"] > rect[data-background] {
+  fill: yellow;
+  stroke: none;
+}
+
+g[data-mml-node="mtable"] > line[data-line] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > rect[data-frame] {
+  stroke-width: 70px;
+  fill: none;
+}
+
+g[data-mml-node="mtable"] > .mjx-dashed {
+  stroke-dasharray: 140;
+}
+
+g[data-mml-node="mtable"] > .mjx-dotted {
+  stroke-linecap: round;
+  stroke-dasharray: 0,140;
+}
+
+g[data-mml-node="mtable"] > svg {
+  overflow: visible;
+}
+
+[jax="SVG"] mjx-tool {
+  display: inline-block;
+  position: relative;
+  width: 0;
+  height: 0;
+}
+
+[jax="SVG"] mjx-tool > mjx-tip {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+mjx-tool > mjx-tip {
+  display: inline-block;
+  padding: .2em;
+  border: 1px solid #888;
+  font-size: 70%;
+  background-color: #F8F8F8;
+  color: black;
+  box-shadow: 2px 2px 5px #AAAAAA;
+}
+
+g[data-mml-node="maction"][data-toggle] {
+  cursor: pointer;
+}
+
+mjx-status {
+  display: block;
+  position: fixed;
+  left: 1em;
+  bottom: 1em;
+  min-width: 25%;
+  padding: .2em .4em;
+  border: 1px solid #888;
+  font-size: 90%;
+  background-color: #F8F8F8;
+  color: black;
+}
+
+foreignObject[data-mjx-xml] {
+  font-family: initial;
+  line-height: normal;
+  overflow: visible;
+}
+
+.MathJax path {
+  stroke-width: 3;
+}
+
+mjx-container[display="true"] {
+  overflow: auto hidden;
+}
+
+mjx-container[display="true"] + br {
+  display: none;
+}
+</style>
 <style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
 </head>
 
@@ -155,70 +275,115 @@
 
     </div>
 
-    <div class="main-inner tag posts-collapse">
+    <div class="main-inner post posts-expand">
 
 
   
+
+
+<div class="post-block">
   
   
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <h1 class="collection-header">WSL
-          <small>标签</small>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pologue.github.io/2024/03/29/%E5%9C%A8WSL%E4%B8%AD%E4%BD%BF%E7%94%A8%E2%80%9Ccygpath%E2%80%9D/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Pologue">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pologue">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="在WSL中使用“cygpath” | Pologue">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          在WSL中使用“cygpath”
         </h1>
-      </div>
 
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
       
-    <div class="collection-year">
-      <span class="collection-header">2024</span>
+
+      <time title="创建时间：2024-03-29 23:50:34 / 修改时间：23:51:24" itemprop="dateCreated datePublished" datetime="2024-03-29T23:50:34+08:00">2024-03-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">配置</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>因为想把电脑上的一些图片转成 ASCII 图片， 在复制 Windows 的文件地址到
+WSL 上时， 没有找到像 cygpath 这样的工具， 所以我在 <code>.zshrc</code>
+里加了下面的内容：</p>
+<figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">\# cygpath-like func</span><br><span class="line">w2nix()</span><br><span class="line">{</span><br><span class="line">  echo "$1" | sed -e 's/\\/\//g' -e 's/E:/\/mnt\/e/g'</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>在我想把这件事写进 blog 时， 我又发现我的 <code>hexo</code>
+命令找不到了。</p>
+<p>一番排查后发现是 nvm 修改系统变量的时候连着 node_global
+也给改掉了。蒸 <span class="github-emoji"><span>🦐</span><img src="https://github.githubassets.com/images/icons/emoji/unicode/1f990.png?v8" aria-hidden="true" onerror="this.parent.classList.add('github-emoji-fallback')"></span> 头</p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2024-03-29T23:50:34+08:00"
-              content="2024-03-29">
-          03-29
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-        <a class="post-title-link" href="/2024/03/29/%E5%9C%A8WSL%E4%B8%AD%E4%BD%BF%E7%94%A8%E2%80%9Ccygpath%E2%80%9D/" itemprop="url">
-          <span itemprop="name">在WSL中使用“cygpath”</span>
-        </a>
-      </div>
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+              <a href="/tags/WSL/" rel="tag"># WSL</a>
+          </div>
 
-      
-    </header>
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/03/13/%E5%9C%A8hexo%E4%B8%AD%E6%98%BE%E7%A4%BA%E5%85%AC%E5%BC%8F/" rel="prev" title="在 Hexo 中显示公式">
+                  <i class="fa fa-angle-left"></i> 在 Hexo 中显示公式
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
   </article>
+</div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2024-03-10T11:06:05+08:00"
-              content="2024-03-10">
-          03-10
-        </time>
-      </div>
 
-      <div class="post-title">
-        <a class="post-title-link" href="/2024/03/10/%E5%9C%A8WSL%E4%B8%AD%E4%BD%BF%E7%94%A8%E4%BB%A3%E7%90%86/" itemprop="url">
-          <span itemprop="name">在WSL中使用代理</span>
-        </a>
-      </div>
 
-      
-    </header>
-  </article>
 
-    </div>
-  </div>
-  
-  
-  
+
 
 </div>
   </main>
@@ -288,7 +453,7 @@
 
   
 
-  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+  <script class="next-config" data-name="enableMath" type="application/json">true</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
 <script src="/js/third-party/math/mathjax.js"></script>
 
 
