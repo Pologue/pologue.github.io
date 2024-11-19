@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha256-5eIC48iZUHmSlSUz9XtjRyK2mzQkHScZY1WdMaoz74E=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"pologue.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.21.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="动机 其实很久之前就有逆向Typora的打算了，但是苦于当时找到的网上的教程不是非常细致，很多地方都看不懂是在干嘛，所以一直没有进度。虽然这学期还是有各种长线的大作业吊着，近期也有编译原理和英语听说两个临近deadline的作业，但我还是忍不住干了，尤其是已经看了新找到的一些教程后。趁记忆消退前，成功后先记下来。 在新电脑上通过修改注册表得到的(实际只记得移动了安装的位置)Typora的无限试用期">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Typora授权解密(上)——初识AES-256加密算法">
+<meta property="og:url" content="http://pologue.github.io/2024/11/19/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86%E4%B8%8A%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="Pologue">
+<meta property="og:description" content="动机 其实很久之前就有逆向Typora的打算了，但是苦于当时找到的网上的教程不是非常细致，很多地方都看不懂是在干嘛，所以一直没有进度。虽然这学期还是有各种长线的大作业吊着，近期也有编译原理和英语听说两个临近deadline的作业，但我还是忍不住干了，尤其是已经看了新找到的一些教程后。趁记忆消退前，成功后先记下来。 在新电脑上通过修改注册表得到的(实际只记得移动了安装的位置)Typora的无限试用期">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/aes_details.jpg">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/aes_enc_dec.png">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/BlockCipherModesofOperation.svg">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/ida_open.png">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/ida_strings.png">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/ida_load_atomjs.png">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/ida_load_atomjs_asm.png">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/ida_findcrypt.png">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/ida_invbox.png">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/ida_xref.png">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/ida_load_invbox.png">
+<meta property="og:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/ida_debug.png">
+<meta property="article:published_time" content="2024-11-19T08:52:52.000Z">
+<meta property="article:modified_time" content="2024-11-19T09:14:19.330Z">
+<meta property="article:author" content="Pologue">
+<meta property="article:tag" content="Typora">
+<meta property="article:tag" content="IDA">
+<meta property="article:tag" content="AES">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://pologue.github.io/2024/11/19/images/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86(%E4%B8%8A)%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/aes_details.jpg">
+
+
+<link rel="canonical" href="http://pologue.github.io/2024/11/19/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86%E4%B8%8A%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/">
+
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://pologue.github.io/2024/11/19/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86%E4%B8%8A%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/","path":"2024/11/19/Typora授权解密上——初识AES-256加密算法/","title":"Typora授权解密(上)——初识AES-256加密算法"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Typora授权解密(上)——初识AES-256加密算法 | Pologue</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+
+<style>.github-emoji { position: relative; display: inline-block; width: 1.2em; min-height: 1.2em; overflow: hidden; vertical-align: top; color: transparent; }  .github-emoji > span { position: relative; z-index: 10; }  .github-emoji img, .github-emoji .fancybox { margin: 0 !important; padding: 0 !important; border: none !important; outline: none !important; text-decoration: none !important; user-select: none !important; cursor: auto !important; }  .github-emoji img { height: 1.2em !important; width: 1.2em !important; position: absolute !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) !important; user-select: none !important; cursor: auto !important; } .github-emoji-fallback { color: inherit; } .github-emoji-fallback img { opacity: 0 !important; }</style>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Pologue</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8A%A8%E6%9C%BA"><span class="nav-number">1.</span> <span class="nav-text">动机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%83%8C%E6%99%AF%E7%9F%A5%E8%AF%86"><span class="nav-number">2.1.</span> <span class="nav-text">背景知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B4%E4%BD%93%E4%BB%8B%E7%BB%8D"><span class="nav-number">2.2.</span> <span class="nav-text">整体介绍</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84"><span class="nav-number">2.3.</span> <span class="nav-text">文件结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4"><span class="nav-number">2.4.</span> <span class="nav-text">步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96"><span class="nav-number">2.5.</span> <span class="nav-text">其他</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="nav-number">3.</span> <span class="nav-text">参考链接</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Pologue"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Pologue</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Pologue" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Pologue" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://pologue.github.io/2024/11/19/Typora%E6%8E%88%E6%9D%83%E8%A7%A3%E5%AF%86%E4%B8%8A%E2%80%94%E2%80%94%E5%88%9D%E8%AF%86AES-256%E5%8A%A0%E5%AF%86%E7%AE%97%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Pologue">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pologue">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Typora授权解密(上)——初识AES-256加密算法 | Pologue">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Typora授权解密(上)——初识AES-256加密算法
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2024-11-19 16:52:52 / 修改时间：17:14:19" itemprop="dateCreated datePublished" datetime="2024-11-19T16:52:52+08:00">2024-11-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/Crypto/" itemprop="url" rel="index"><span itemprop="name">Crypto</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="far fa-eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="动机">动机</h2>
+<p>其实很久之前就有逆向Typora的打算了，但是苦于当时找到的网上的教程不是非常细致，很多地方都看不懂是在干嘛，所以一直没有进度。虽然这学期还是有各种长线的大作业吊着，近期也有编译原理和英语听说两个临近deadline的作业，但我还是忍不住干了，尤其是已经看了新找到的一些教程后。趁记忆消退前，成功后先记下来。</p>
+<p>在新电脑上通过修改注册表得到的(实际只记得移动了安装的位置)Typora的无限试用期重置了，今天(2024年11月17日)刚好只剩1天，也是折腾这个的理由。本来想用Typora作为英语听说present的准备的编辑器，也是理由。</p>
+<h2 id="过程">过程</h2>
+<h3 id="背景知识">背景知识</h3>
+<ul>
+<li><p>Typora采用的框架是Electron。</p></li>
+<li><p>调试它的可执行文件还是得用上反汇编软件，例如IDA。</p></li>
+<li><p>asar是一种打包方式，可以直接用nodejs的asar提取出来，没有加密。</p></li>
+<li><p>AES是一种块加密，也就是把明文划分成相同大小的块再进行加密，加密用的密钥叫key。AES-128、192、256用到的key长度分别是16byte、24byte、32byte。这里Typora用到的是AES-256，所以key的长度是<strong>32byte</strong>。<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/aes_details.jpg" alt="aes_detials">
+<figcaption aria-hidden="true">aes_detials</figcaption>
+</figure>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/aes_enc_dec.png" alt="aes_enc_dec">
+<figcaption aria-hidden="true">aes_enc_dec</figcaption>
+</figure></li>
+<li><p>AES加密和解密会分别用到两个256byte的矩阵，叫SBox和InvBox。它们的值是固定的，所以可以通过IDA的FindCrypt插件找出来。</p></li>
+<li><p>块加密有不同的模式，有CBC、ECB、CFB等等。其中ECB是每个明文块分别加密；CBC和CFB是把上一块的密文和当前块的明文做异或后再加密，区别是它们俩明文与密文做异或的时机不一样。在这里Typora用的是<strong>CBC</strong>模式。<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/BlockCipherModesofOperation.svg" alt="BlockCipherModesofOperation">
+<figcaption aria-hidden="true">BlockCipherModesofOperation</figcaption>
+</figure></li>
+<li><p>CBC这种加密方式需要在第一个加密的周期前面再加一个初始的“与明文做异或”的块，就叫iv(initial
+vector)。因为AES的块是一个4x4的格子，长度为16byte，所以iv的长度就是<strong>16byte</strong>。</p></li>
+</ul>
+<h3 id="整体介绍">整体介绍</h3>
+<p>Typora通过app.asar里的main.node模块(实际为dll动态链接库文件)加载atom.js中关于验证license的代码，atom.js通过AES-256加密后用base64编码，以密文的形式存储。解密的过程就发生在main.node中。<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a><a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a></p>
+<p>破解的思路是找到AES加密的key和iv，修改解密出来的验证license的代码，再将修改过的代码加密，替换掉原来的atom.js，再重新打包。所以整个过程大概可以分成两个部分：AES解密和patch
+JavaScript代码。因为不太熟悉后面这部分，估计还得花点时间搞，所以我打算下次再写。</p>
+<p>听说还有一种更方便的方法是hook，不过我还没怎么搞明白。</p>
+<h3 id="文件结构">文件结构</h3>
+<p>在Typora的安装路径下，有Typora.exe可执行文件，它会使用resources/app.asar.unpacked中的main.node来动态加载app.asar，再解密里面的atom.js。我们自己打开app.asar后里面会3个文件，其他两个都不用管，重点关注这个atom.js就好了。</p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">Typora</span><br><span class="line">➜  tree -L 3</span><br><span class="line">.</span><br><span class="line">├── chrome_100_percent.pak</span><br><span class="line">├── chrome_200_percent.pak</span><br><span class="line">├── d3dcompiler_47.dll</span><br><span class="line">├── DO NOT ADD FILES HERE</span><br><span class="line">├── ffmpeg.dll</span><br><span class="line">├── icudtl.dat</span><br><span class="line">├── libEGL.dll</span><br><span class="line">├── libGLESv2.dll</span><br><span class="line">├── LICENSE</span><br><span class="line">├── LICENSES.chromium.html</span><br><span class="line">├── locales</span><br><span class="line">│&nbsp;&nbsp; ├── uk.pak</span><br><span class="line">|   ...</span><br><span class="line">│&nbsp;&nbsp; ├── zh-CN.pak</span><br><span class="line">│&nbsp;&nbsp; └── zh-TW.pak</span><br><span class="line">├── resources</span><br><span class="line">│&nbsp;&nbsp; ├── app.asar</span><br><span class="line">│&nbsp;&nbsp; ├── app.asar.unpacked</span><br><span class="line">|   |   └── main.node</span><br><span class="line">│&nbsp;&nbsp; ├── appsrc</span><br><span class="line">│&nbsp;&nbsp; ├── assets</span><br><span class="line">│&nbsp;&nbsp; ├── conf.default.json</span><br><span class="line">│&nbsp;&nbsp; ├── Docs</span><br><span class="line">│&nbsp;&nbsp; ├── DO NOT ADD FILES HERE</span><br><span class="line">│&nbsp;&nbsp; ├── html</span><br><span class="line">│&nbsp;&nbsp; ├── lib.asar</span><br><span class="line">│&nbsp;&nbsp; ├── locales</span><br><span class="line">│&nbsp;&nbsp; ├── node_modules</span><br><span class="line">│&nbsp;&nbsp; ├── node_modules.asar</span><br><span class="line">│&nbsp;&nbsp; ├── package.json</span><br><span class="line">│&nbsp;&nbsp; ├── page-dist</span><br><span class="line">│&nbsp;&nbsp; ├── style</span><br><span class="line">│&nbsp;&nbsp; ├── updater</span><br><span class="line">│&nbsp;&nbsp; └── window.html</span><br><span class="line">├── resources.pak</span><br><span class="line">├── snapshot_blob.bin</span><br><span class="line">├── Typora.exe</span><br><span class="line">├── Typora.VisualElementsManifest.xml</span><br><span class="line">├── unins000.dat</span><br><span class="line">├── unins000.exe</span><br><span class="line">├── v8_context_snapshot.bin</span><br><span class="line">├── version</span><br><span class="line">├── vk_swiftshader.dll</span><br><span class="line">├── vk_swiftshader_icd.json</span><br><span class="line">└── vulkan-1.dll</span><br></pre></td></tr></tbody></table></figure>
+<p>听说这个“chrome_100_percent.pak”“chrome_200_percent.pak”是Electron框架的一个特征。<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
+<p>简单提取一下：<code>npx asar extract app.asar app.asar.manual</code></p>
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Typora/resources/app.asar.manual</span><br><span class="line">➜  tree</span><br><span class="line">.</span><br><span class="line">├── atom.js</span><br><span class="line">├── main.node</span><br><span class="line">└── package.json</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="步骤">步骤</h3>
+<ol type="1">
+<li><p>通过IDA打开main.node。IDA会自动识别文件类型，然后自动勾选一些选项。</p>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/ida_open.png" alt="ida_open">
+<figcaption aria-hidden="true">ida_open</figcaption>
+</figure></li>
+<li><p><code>Shift+F12</code>打开字符串搜索，找到“./atom.js”，双击点进去，<code>F5</code>自动生成伪代码，估计就是用这个函数加载的密文。把函数名“sub_xxxx”改成“load_atomjs”这种方便理解的名字。点击函数名，按<code>N</code>即可修改，后面分析伪代码修改变量名也是这样。</p>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/ida_strings.png" alt="ida_strings">
+<figcaption aria-hidden="true">ida_strings</figcaption>
+</figure>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/ida_load_atomjs.png" alt="ida_load_atomjs">
+<figcaption aria-hidden="true">ida_load_atomjs</figcaption>
+</figure>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/ida_load_atomjs_asm.png" alt="ida_load_atomjs_asm">
+<figcaption aria-hidden="true">ida_load_atomjs_asm</figcaption>
+</figure></li>
+<li><p><code>Ctrl+Alt+F</code>使用FindCrypt插件，或者在工具栏Edit/Plugins/下点开，可以找到两个RijinDaelSBox和InvBox。第二个IDA的识别有一点错误，把后面的不相干的数据也划成InvBox的了，<code>小键盘*</code>修改Array的大小为256byte。我们要找解密的过程，所以要找用了InvBox的函数。双击InvBox进去，可以把函数重命名为“load_invbox”。右边分号后面的是汇编代码的注释，可以看到“DATA
+XREF:
+sub_xxxx”，这是IDA自动生成的，代表IDA找到的引用了这个数据的函数，可以双击点进去。</p>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/ida_findcrypt.png" alt="ida_findcrypt">
+<figcaption aria-hidden="true">ida_findcrypt</figcaption>
+</figure>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/ida_invbox.png" alt="ida_invbox">
+<figcaption aria-hidden="true">ida_invbox</figcaption>
+</figure></li>
+<li><p>在汇编代码窗口按<code>X</code>查看当前函数的交叉引用，工具栏View/Graphs可以查看调用当前函数和当前函数调用的关系图。可以看到重命名后IDA自动把单纯调用“load_invbox”的函数命名为了“j_load_invbox”。</p>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/ida_xref.png" alt="ida_xref">
+<figcaption aria-hidden="true">ida_xref</figcaption>
+</figure></li>
+<li><p>“load_invbox”函数的伪代码的结构很像AES解密的流程<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>，我们把其中的循环结构标记出来后就更清晰了。将伪代码中无意义的<code>v1</code>、<code>v2</code>的变量名重命名为有实际意义的变量名，以及通过<code>/</code>添加注释，可以降低理解代码的难度。</p>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/ida_load_invbox.png" alt="ida_load_invbox">
+<figcaption aria-hidden="true">ida_load_invbox</figcaption>
+</figure></li>
+<li><p>找到表示密文的变量并重命名，下断点，动态调试，双击变量名。右键调试窗口的hex子窗口，synchronized
+with汇编窗口，再取消同步，多走几步可以看到数据一行一行地变为“require…”开头的明文。因为AES-256的key在做key
+expansion的时候，头两轮的key分别是原key的前后两段；而在解密中这两段key会用在最后两次AddRoundKey中。因为第一次找的时候我没找到key具体存放在哪里，所以我们可以异或密文和明文得到key来曲线救国。</p>
+<figure>
+<img src="../images/Typora授权解密(上)——初识AES-256加密算法/ida_debug.png" alt="ida_debug">
+<figcaption aria-hidden="true">ida_debug</figcaption>
+</figure></li>
+<li><p>在旧版的Typora中，iv就是密文的前16byte，在1.9.5中已经不是了。奈何我实在没看懂iv到底是在哪里，所以我就求助于比较新的教程<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a><a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a><a href="#fn10" class="footnote-ref" id="fnref10" role="doc-noteref"><sup>10</sup></a>，把教程中标注为iv的变量标注为iv，动态调试得到它的值。</p></li>
+<li><p>在CyberChef中选择cbc模式解密失败，选择cbc/no
+padding模式成功了，但是明文的末尾有一串非ascii字符串。我猜测是CyberChef自动去除padding时不能判断哪里是padding。</p></li>
+</ol>
+<h3 id="其他">其他</h3>
+<ul>
+<li><p>IDA的颜色</p>
+<p>1,2两篇教程<a href="#fn11" class="footnote-ref" id="fnref11" role="doc-noteref"><sup>11</sup></a><a href="#fn12" class="footnote-ref" id="fnref12" role="doc-noteref"><sup>12</sup></a>的ida的theme都设置成了护眼的黑色，而非默认的米黄色，第2篇<a href="#fn13" class="footnote-ref" id="fnref13" role="doc-noteref"><sup>13</sup></a>米黄色背景的软件是x64dbg</p></li>
+<li><p>CyberChef</p>
+<p>第1篇教程<a href="#fn14" class="footnote-ref" id="fnref14" role="doc-noteref"><sup>14</sup></a>保存按钮的软件是notepad++，两篇都用到了<a target="_blank" rel="noopener" href="https://cyberchef.org/">CyberChef</a>（BAKE！）</p></li>
+</ul>
+<h2 id="参考链接">参考链接</h2>
+<section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr>
+<ol>
+<li id="fn1"><p><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E9%AB%98%E7%BA%A7%E5%8A%A0%E5%AF%86%E6%A0%87%E5%87%86">高级加密标准Wiki</a><a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p><a target="_blank" rel="noopener" href="https://ctf-wiki.org/crypto/blockcipher/aes/">CTF Wiki AES</a><a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation">Block
+cipher mode of operation Wiki</a><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4"><p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-1553967-1-1.html"><strong>[原创]
+Typora 授权解密与剖析</strong></a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5"><p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-1968245-1-1.html"><strong>[原创]
+Typora 1.0.4版本破解复现</strong></a><a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6"><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/cc11001100/p/14290584.html">[Electron程序逆向（asar归档解包）](https://www.cnblogs.com/cc11001100/p/14290584.html)</a><a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7"><p><a target="_blank" rel="noopener" href="https://sxyz.blog/aes-from-scratch/">从零实现
+AES 加密算法</a><a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8"><p><a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-272538.htm">[原创]Typora 破解 之
+逆向分析（上）</a><a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn9"><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/Here-is-SG/p/16749410.html">Typora破解复现</a><a href="#fnref9" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn10"><p><a target="_blank" rel="noopener" href="https://bbs.kanxue.com/thread-282319.htm">[原创]【最新】Typora最新版的逆向过程分析</a><a href="#fnref10" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn11"><p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-1553967-1-1.html"><strong>[原创]
+Typora 授权解密与剖析</strong></a><a href="#fnref11" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn12"><p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-1968245-1-1.html"><strong>[原创]
+Typora 1.0.4版本破解复现</strong></a><a href="#fnref12" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn13"><p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-1968245-1-1.html"><strong>[原创]
+Typora 1.0.4版本破解复现</strong></a><a href="#fnref13" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn14"><p><a target="_blank" rel="noopener" href="https://www.52pojie.cn/thread-1553967-1-1.html"><strong>[原创]
+Typora 授权解密与剖析</strong></a><a href="#fnref14" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Typora/" rel="tag"># Typora</a>
+              <a href="/tags/IDA/" rel="tag"># IDA</a>
+              <a href="/tags/AES/" rel="tag"># AES</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2024/10/23/%E5%9C%A8VMware%E4%B8%AD%E9%80%9A%E8%BF%87proxychains%E4%BD%BF%E7%94%A8%E5%AE%BF%E4%B8%BB%E6%9C%BA%E7%9A%84%E4%BB%A3%E7%90%86/" rel="prev" title="在VMware中通过proxychains使用宿主机的代理">
+                  <i class="fa fa-angle-left"></i> 在VMware中通过proxychains使用宿主机的代理
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2024</span>
+    <span class="with-love">
+      <i class="fa fa-check"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Pologue</span>
+  </div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+  
+
+  <script class="next-config" data-name="enableMath" type="application/json">false</script><script class="next-config" data-name="mathjax" type="application/json">{"enable":true,"tags":"none","js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js","integrity":"sha256-MASABpB4tYktI2Oitl4t+78w/lyA+D7b/s9GEP0JOGI="}}</script>
+<script src="/js/third-party/math/mathjax.js"></script>
+
+
+
+</body>
+</html>
