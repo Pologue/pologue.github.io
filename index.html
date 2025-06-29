@@ -234,7 +234,7 @@ mjx-container[display="true"] + br {
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-count">11</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -245,7 +245,7 @@ mjx-container[display="true"] + br {
       </div>
       <div class="site-state-item site-state-tags">
           <a href="/tags/">
-        <span class="site-state-item-count">16</span>
+        <span class="site-state-item-count">17</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -267,6 +267,148 @@ mjx-container[display="true"] + br {
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="http://pologue.github.io/2025/06/29/WSL2-wslg-problem/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Pologue">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Pologue">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="undefined | Pologue">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/06/29/WSL2-wslg-problem/" class="post-title-link" itemprop="url">WSL2 wslg problem</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2025-06-29 20:18:48" itemprop="dateCreated datePublished" datetime="2025-06-29T20:18:48+08:00">2025-06-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">配置</span></a>
+        </span>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>WSL2中，默认支持WSLg，可以直接打开GUI应用。但是缩放率比较小。我的WSL不知道从什么时候起突然有了毛病，再也打不开GUI应用，安装新的distro也是一样的<code>cannot open display</code>，大概是动了哪里的配置吧，没有自动创建WSLg的软链接。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/microsoft/wslg/wiki/Diagnosing-%22cannot-open-display%22-type-issues-with-WSLg">参考</a></p>
+<h3 id="确认windows版本">确认Windows版本</h3>
+<blockquote>
+<p>From a Windows command prompt, type ver to verify which build you are
+running. </p><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">E:\wsl&gt;ver</span><br><span class="line">Microsoft Windows [版本 10.0.26100.4349]</span><br></pre></td></tr></tbody></table></figure> You must be running on Windows build version
+21364+ for WSLg to work.<p></p>
+<p>This version of Windows is currently only available through the
+Windows Insider program. See https://insider.windows.com/en-us/ to join
+the insider program and help us validate pre-released version of
+Windows.</p>
+</blockquote>
+<p>Windows11一般都是支持WSLg的吧。 ### DISPLAY环境变量 &gt;WSLg's X
+server is running on display 0. The DISPLAY environment variable must
+have the value :0 for GUI application to connect to the right display.
+You can verify what the value of your DISPLAY environment variable is
+per below. </p><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">name@hostname:~$ echo $DISPLAY</span><br><span class="line">:0</span><br></pre></td></tr></tbody></table></figure> &gt;This environment variable is initialize as
+part of WSL's INIT. If it is unset or has a value other than :0, than
+you likely have a profile script that is changing it's value that you'll
+want to hunt down. You can also reset that environment variable like
+below. <figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">export DISPLAY=:0</span><br></pre></td></tr></tbody></table></figure> 有些<a target="_blank" rel="noopener" href="https://superuser.com/questions/1617298/wsl-2-running-ubuntu-x-server-cant-open-display">教程</a>的说法是<code>export</code>主机ip，但是对我的情况没什么作用。
+### X11 display socket &gt;X servers create their socket under
+/tmp/.X11-Unix. This directory must exist and must be linked to
+/mnt/wslg/.X11-Unix where WSLg built-in X server create it's socket. You
+can verify the mapping exist and is the expected link per below.
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">name@hostname:~$ ls -la /tmp/.X11-unix</span><br><span class="line">lrwxrwxrwx 1 name name 19 Apr 21 15:28 /tmp/.X11-unix -&gt; /mnt/wslg/.X11-unix</span><br></pre></td></tr></tbody></table></figure> &gt;This link is setup during WSL's INIT. If this
+directory doesn't exist, something likely caused it be removed in your
+environment that needs to be tracked down. &gt; &gt;You can re-create
+the link manually to try things out. <figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo rm -r /tmp/.X11-unix</span><br><span class="line">ln -s /mnt/wslg/.X11-unix /tmp/.X11-unix</span><br></pre></td></tr></tbody></table></figure> ### X11 server
+running? &gt;If the X server is running, you should see an X0 socket
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">name@hostname:~$ ls /tmp/.X11-unix</span><br><span class="line">X0</span><br></pre></td></tr></tbody></table></figure> &gt;If you don't please open an issue and attach
+/mnt/wslg/weston.log to the bug.<p></p>
+<h3 id="known-issues">Known issues</h3>
+<blockquote>
+<p>You can verify the version of WSLg you are running per below:
+</p><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">name@hostname:~$ cat /mnt/wslg/versions.txt</span><br><span class="line">WSLg ( x86_64 ): 1.0.17+3.Branch.master.Sha.a526dfd5ad03d126bb2d8c528f6c3563e86a40da</span><br><span class="line">Mariner: VERSION="1.0.20210224"</span><br><span class="line">FreeRDP: e4a2fc2053bd8c5f99455fcd08ffee7e5591567a</span><br><span class="line">weston: fd961f5cd116c9358d82ce94d139c1578e21bd00</span><br><span class="line">pulseaudio: 2f0f0b8c3872780f15e275fc12899f4564f01bd5</span><br><span class="line">mesa:</span><br></pre></td></tr></tbody></table></figure> ### Complex monitor arrangement (Fixed in WSLg 1.0.19)
+There is a known issue in WSLg 1.0.17 that if you have a combination of
+vertically and horizontally aligned monitor, Weston may hit an invalid
+assert and restart. Effectively crashing and restarting the X server on
+every connection attempt.<p></p>
+<p>You can verify if this is what you are hitting per below
+</p><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat /mnt/wslg/weston.log | grep isConnected_V</span><br></pre></td></tr></tbody></table></figure> if you see something like <figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">weston: ../libweston/backend-rdp/rdpdisp.c:481: disp_monitor_validate_and_compute_layout: Assertion `isConnected_V == true' failed.</span><br></pre></td></tr></tbody></table></figure> Then you are
+hitting this problem. The workaround at the moment is to stack all of
+your monitor either vertically, or horizontally, but not use a mix of
+both.<p></p>
+</blockquote>
+<h3 id="setting-tmp-in-etcfstab">Setting /tmp in /etc/fstab</h3>
+<blockquote>
+<p>There is a known issue at the moment
+(https://github.com/microsoft/wslg/issues/43) where configuring /tmp in
+/etc/fstab will overwrite the /tmp/.X11-unix link previously described.
+The workaround at the moment is to either avoid configuring /tmp, or
+manually recreating the link </p><figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /mnt/wslg/.X11-unix /tmp/.X11-unix</span><br></pre></td></tr></tbody></table></figure> ### Still having a
+problem?<p></p>
+</blockquote>
+<blockquote>
+<p>Please open an issue and include the following</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>Run the following command and provide the output:
+<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">spronovo@OFFICE:~$ cat /mnt/wslg/versions.txt</span><br><span class="line">WSLg ( x86_64 ): &lt;current&gt;</span><br><span class="line">Mariner: VERSION="1.0.20210224"</span><br><span class="line">FreeRDP: 5f083fa0b97d433d6204985f6047886e29c1c61e</span><br><span class="line">weston: 16de531f00aa3dfd17e0de74c8f49e9fd7cec617</span><br><span class="line">pulseaudio: 2f0f0b8c3872780f15e275fc12899f4564f01bd5</span><br><span class="line">mesa: 2ad0684038f5732f7e4bd1a391ec9d833685fb48</span><br><span class="line"></span><br><span class="line">spronovo@OFFICE:~$ echo $DISPLAY</span><br><span class="line">:0</span><br><span class="line"></span><br><span class="line">spronovo@OFFICE:~$ ls -la /tmp/.X11-unix</span><br><span class="line">lrwxrwxrwx 1 root root 19 Apr 21 12:12 /tmp/.X11-unix -&gt; /mnt/wslg/.X11-unix</span><br><span class="line"></span><br><span class="line">spronovo@OFFICE:~$ ls -la /tmp/.X11-unix/</span><br><span class="line">total 0</span><br><span class="line">drwxrwxrwx 2 root     root   60 Apr 21 12:22 .</span><br><span class="line">drwxrwxrwt 5 root     root  220 Apr 21 12:22 ..</span><br><span class="line">srwxrwxrwx 1 spronovo users   0 Apr 21 12:22 X0</span><br></pre></td></tr></tbody></table></figure></li>
+<li>Attach your /mnt/wslg/weston.log file</li>
+</ul>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -1244,141 +1386,9 @@ S 和 Grade 共同作为除法“ <span class="math inline"><mjx-container class
 
 
 
-    
-
-
-<div class="post-block">
-  
-  
-
-  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
-    <link itemprop="mainEntityOfPage" href="http://pologue.github.io/2024/03/03/Kali-Linux-VMware-%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.jpg">
-      <meta itemprop="name" content="Pologue">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Pologue">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
-      <meta itemprop="name" content="undefined | Pologue">
-      <meta itemprop="description" content="">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          <a href="/2024/03/03/Kali-Linux-VMware-%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">Kali Linux VMware 网络配置</a>
-        </h2>
-
-        <div class="post-meta-container">
-          <div class="post-meta">
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar"></i>
-      </span>
-      <span class="post-meta-item-text">发表于</span>
-
-      <time title="创建时间：2024-03-03 16:34:59" itemprop="dateCreated datePublished" datetime="2024-03-03T16:34:59+08:00">2024-03-03</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-calendar-check"></i>
-      </span>
-      <span class="post-meta-item-text">更新于</span>
-      <time title="修改时间：2024-10-10 22:01:29" itemprop="dateModified" datetime="2024-10-10T22:01:29+08:00">2024-10-10</time>
-    </span>
-    <span class="post-meta-item">
-      <span class="post-meta-item-icon">
-        <i class="far fa-folder"></i>
-      </span>
-      <span class="post-meta-item-text">分类于</span>
-        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-          <a href="/categories/%E9%85%8D%E7%BD%AE/" itemprop="url" rel="index"><span itemprop="name">配置</span></a>
-        </span>
-    </span>
-
-  
-</div>
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-          <p>VMware 版本：16.2.4 Pro</p>
-<p>Kali pre-built 版本：Kali Rolling (2023.4) x64</p>
-<p>因为之前配 Ubuntu
-的网络的时候就有点抓瞎，所以这次打算把配置过程稍微记录下来，免得再把头搞大。之前我是用
-iso 安装了 kali ，因为当时没想到还有直接下载虚拟机的，后来感觉 pre-built
-的启动更快一点，键盘鼠标输入也更流畅，就把之前的删掉了。</p>
-<h2 id="基本配置">基本配置</h2>
-<p>Kali可以手动配置网络，也可以让NetworkManager(命令有
-<code>nmcli</code> 和 <code>nmtui</code> )自动配置。默认的配置文件是
-<code>/etc/network/interfaces</code> ，nm的配置文件是
-<code>/etc/NetworkManger/NetworkManager.conf</code> 。</p>
-<p>据我观察kali应该就只有 <code>networking.service</code> 和
-<code>NetworkManager.service</code> 两个服务是跟网络相关的，不过前者是
-<code>actived(exited)</code> 状态，后者是 <code>actived(running)</code>
-状态。我猜 networking 应该就是管那个 interfaces 的服务。</p>
-<p><code>/etc/network/interfaces</code>默认配置：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line"></span><br><span class="line"># auto eth0</span><br><span class="line"># iface eth0 inet dhcp</span><br></pre></td></tr></tbody></table></figure>
-<p><code>/etc/NetworkManager/NetworkManager.conf</code> 默认配置：</p>
-<figure class="highlight plaintext"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[main]</span><br><span class="line">plugins=ifupdown,keyfile</span><br><span class="line"></span><br><span class="line">[ifupdown]</span><br><span class="line">managed=false</span><br></pre></td></tr></tbody></table></figure>
-<p>因为 <code>managed</code> 默认为 <code>false</code> ，nm 不会接管
-interfaces 中已经配置的接口，所以 interfaces 中只需要写 loopback
-的内容。如果把 interfaces 中 eth0
-的配置取消注释，右上角的网络小图标会显示没有网络，但是此时是可以上网的。</p>
-<p>我的虚拟机的网卡名字叫 eth0 ，对应 mac 地址是 VMware 虚拟机设置 -&gt;
-网络适配器 -&gt; 高级 的 mac 地址。不管连接模式是 nat 还是 bridge
-，到虚拟机中对应的都是同一个有线连接。如果有移动网卡就可以通过 虚拟机
--&gt; 可移动设备 给虚拟机用，可以连接周围的 WiFi 。</p>
-<p>如果修改了虚拟机的 permanent mac ， nm 的 networking
-这一项就会关闭，导致 lo 和 eth0 两个网卡都是 strictly unmanaged
-状态，只需要输入 <code>nmcli n on</code> 把 networking 打开就好了。</p>
-<p>nm 还需要设置 connection ，一般一个 device
-设置一个就好了，因为不能同时开启 (不确定有多个网卡是什么情况) 。通过
-<code>nmtui</code> 或者 kali 桌面的 Advanced Network Configuration
-设置都可以， <code>nmcli</code> 也可以，不过不太方便。</p>
-<h2 id="连接校园网">连接校园网</h2>
-<p><a href="172.19.1.9:8080" title="172.19.1.9:8080">WHU校园网登录认证</a></p>
-<p><a target="_blank" rel="noopener" href="http://user-serv.whu.edu.cn:8080/selfservice/" title="http://user-serv.whu.edu.cn:8080/selfservice/">WHU校园网自助服务</a></p>
-<p>因为校园网需要在网页上认证，所以在桥接模式下，虽然我的虚拟机可以 ping
-到物理机，但是无法上网。要在虚拟机上使用校园网，需要把 mac
-地址改成物理机用来上网的无线网卡的地址 (比如我的网卡是 Intel(R) Wi-Fi 6
-AX201 160MHz) ，桥接模式下面 "复制物理网络连接状态"
-的选项似乎选不选都可以。虚拟机成功登录校园网后，物理机是没法正常上网的状态，将虚拟机挂起可以恢复。</p>
-<h2 id="其他">其他</h2>
-<p><code>/sys/class/net/</code> 下可以看到网卡的名字</p>
-<p><code>lspci</code> 和 <code>lsusb</code> 可以查看 pci 和 usb 设备</p>
-<p><code>macchanger</code> 可以改变网卡的 mac 地址，不过好像不能改
-permanent mac</p>
-<p><code>sudo systemctl restart networking</code> 重启
-networking.service</p>
-<p><code>sudo systemctl restart NetworkManager</code> 重启
-NetworkManager.service</p>
-
-      
-    </div>
-
-    
-    
-    
-
-    <footer class="post-footer">
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-</div>
-
-
-
-
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" title="下一页" aria-label="下一页" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+  </nav>
 
 </div>
   </main>
